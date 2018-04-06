@@ -2,7 +2,7 @@ package dcc;
 
 public class Main {
 	public static void main(String[] args) {
-		Blockchain bc = new Blockchain(10, 4);
+		Blockchain bc = new Blockchain(10, 4, 10);
 		System.out.println(bc.toString());
 	}
 	

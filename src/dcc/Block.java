@@ -5,7 +5,6 @@ import java.util.Date;
 public class Block {
 	private String hash_prev;
 	private Date timestamp;
-
 	private String hash_merkle; 
 	private int nonce;
 	private Transaction transactions[];
@@ -17,6 +16,7 @@ public class Block {
 	public Block (String hash_prev, Transaction transactions[], int difficulty){
 		this.hash_prev = hash_prev;
 		this.timestamp = new Date ();
+		this.transactions = transactions;
 		this.hash_merkle = this.generate_merkle(this.transactions);
 		this.nonce = generateNonce(difficulty);
 		this.hash_block = Utility.sha256(this.hash_prev + this.timestamp.toString() + this.hash_merkle + this.nonce);
@@ -24,8 +24,7 @@ public class Block {
 	}
 
 	private String generate_merkle(Transaction ts []) {
-		String t [] = new String [0];
-		System.out.println(ts[0]);
+		String t [] = new String [ts.length];
 		for (int i = 0; i < ts.length; i++) t[i] = ts[i].getHash();
 		return merkle_aux(t);
 	}
@@ -64,9 +63,9 @@ public class Block {
 		String t = Utility.sha256(this.hash_prev + this.timestamp.toString() + this.hash_merkle + nonce);
 		String str_difficulty = "";
 		for (int i = 0; i < difficulty; i++) str_difficulty += "0";
-		while (t.substring(0, 4) == str_difficulty){
-			t = Utility.sha256(this.hash_prev + this.timestamp.toString() + this.hash_merkle + nonce);
+		while (!t.substring(0, difficulty).equals(str_difficulty)){
 			nonce++;
+			t = Utility.sha256(this.hash_prev + this.timestamp.toString() + this.hash_merkle + nonce);
 		}
 		return nonce;
 	}
@@ -77,7 +76,7 @@ public class Block {
 				+ "Hash du block precedent : " + this.hash_prev + "\n"
 				+ "Timestamp : " + this.timestamp + "\n"
 				+ "Nonce : " + this.nonce + "\n"
-				+ "Merkle : ...";
+				+ "Nbr de transactions : " + this.transactions.length;
 	}
 
 }

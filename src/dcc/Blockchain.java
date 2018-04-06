@@ -6,9 +6,12 @@ public class Blockchain {
 	private int nb_blocks;
 	private Block blocks[];
 
-	public Blockchain (int nb_transactions_max, int difficulty) {
+	public Blockchain (int nb_transactions_max, int difficulty, int nbr_blocks) {
+		this.blocks = new Block [nbr_blocks];
 		this.difficulty = difficulty;
-		this.blocks[0] = new Block("0", new Transaction [] {new Transaction("Genesis")}, this.difficulty);
+		this.blocks[0] = new Block("0",
+				new Transaction [] {new Transaction("Genesis")},
+				this.difficulty);
 		this.nb_blocks = 1;
 		this.nb_transactions_max = nb_transactions_max;
 	}
@@ -28,11 +31,9 @@ public class Blockchain {
 	}
 
 	public void checkBlockchain(){
-		// etape 1 : vérifier le chainage des hashs
-		// etape 2 : vérifier tous les arbres de markle
-		for (int i=0; i<nb_blocks;i++){
-			int j = 0;
-		}
+		// etape 1 : verifier le chainage des hashs
+		// etape 2 : verifier tous les arbres de markle
+		for (int i=0; i < this.nb_blocks; i++);
 	}
 
 }
