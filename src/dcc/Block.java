@@ -74,7 +74,7 @@ public class Block {
 	public String toString (){
 		return "------------------\n"
 				+ "Hash du block : " + this.getHash() + "\n"
-				+ "Hash du block précédent : " + this.hash_prev + "\n"
+				+ "Hash du block precedent : " + this.hash_prev + "\n"
 				+ "Timestamp : " + this.timestamp + "\n"
 				+ "Nonce : " + this.nonce + "\n"
 				+ "Merkle : ...";
