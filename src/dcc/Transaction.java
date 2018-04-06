@@ -8,7 +8,11 @@ public class Transaction {
 	 * Constructeur
 	 */
 	public Transaction () {
-		this.content = Utility.sha256(Integer.toString(Utility.rdm(100)));
+		this.content = Integer.toString(Utility.rdm(100));
+	}
+	
+	public Transaction (String content){
+		this.content = content;
 	}
 	
 	/**
@@ -16,5 +20,9 @@ public class Transaction {
 	 */
 	public String toString () {
 		return "Transaction : " + this.content;
+	}
+	
+	public String getHash (){
+		return Utility.sha256(this.toString());
 	}
 }
