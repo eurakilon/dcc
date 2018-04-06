@@ -1,4 +1,4 @@
-package duckcoincoin;
+package dcc;
 
 public class Block {
 

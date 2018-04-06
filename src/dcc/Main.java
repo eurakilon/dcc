@@ -1,4 +1,4 @@
-package duckcoincoin;
+package dcc;
 
 public class Main {
 	public static void main(String[] args) {

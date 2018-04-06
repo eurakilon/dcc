@@ -1,4 +1,4 @@
-package duckcoincoin;
+package dcc;
 
 import java.security.MessageDigest;
 import java.util.Random;
