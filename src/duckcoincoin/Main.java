@@ -1,9 +1,9 @@
-package duckcoincoin;
+package dcc;
 
 public class Main {
 	public static void main(String[] args) {
-		Transaction t = new Transaction();
-		System.out.println(t.toString());
+		Blockchain bc = new Blockchain(10, 4);
+		System.out.println(bc.toString());
 	}
 	
 	/**
