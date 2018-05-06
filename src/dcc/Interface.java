@@ -9,7 +9,6 @@ import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -23,6 +22,7 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -34,9 +34,11 @@ import javax.swing.ImageIcon;
 
 import java.awt.Component;
 import javax.swing.SwingConstants;
+import java.awt.Toolkit;
 
 public class Interface {
 	private Blockchain blockchain;
+	private FileNameExtensionFilter jsonFilter = new FileNameExtensionFilter("Fichier JSON", "json");
 
 	/**
 	 * Launch the application.
@@ -77,9 +79,9 @@ public class Interface {
 		}
 
 		JFrame frame = new JFrame();
-		frame.setResizable(false);
 		frame.setTitle("DuckCoinCoin");
 		frame.setSize(800, 450);
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Interface.class.getResource("/dcc/duck_icon.png")));
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
@@ -115,7 +117,7 @@ public class Interface {
 		// Image d'un canard
 		BufferedImage myPicture;
 		try {
-			myPicture = ImageIO.read(new File("duck.png"));
+			myPicture = ImageIO.read(this.getClass().getResource("duck.png"));
 			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
 			picLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			panel_5.add(picLabel);
@@ -161,6 +163,7 @@ public class Interface {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (importBtn.isEnabled()) {
+					openFileChooser.setFileFilter(jsonFilter);
 					if (JFileChooser.APPROVE_OPTION == openFileChooser.showOpenDialog(null)) {
 						Thread t = new Thread() {
 							public void run() {
@@ -202,9 +205,9 @@ public class Interface {
 	}
 
 	private void displayBlockchain (JFrame frame) {
-		displayBlockchain(frame, false, 1, 0);
+		displayBlockchain(frame, false, 0, 0, 0);
 	}
-	private void displayBlockchain (JFrame previousFrame, boolean newBc, int nbrBlocks, int difficulty) {
+	private void displayBlockchain (JFrame previousFrame, boolean newBc, int nbrBlocks, int difficulty, int nbr_transactions_max) {
 		previousFrame.setVisible(false);
 
 		// Initialisation des btns
@@ -215,6 +218,7 @@ public class Interface {
 		JFrame frame = new JFrame();
 		frame.setTitle("DuckCoinCoin");
 		frame.setSize(700, 400);
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Interface.class.getResource("/dcc/duck_icon.png")));
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
@@ -288,6 +292,7 @@ public class Interface {
 			public void mouseClicked(MouseEvent e) {
 				if (exportBtn.isEnabled()) {
 					JFileChooser fileChooser = new JFileChooser();
+					fileChooser.setFileFilter(jsonFilter);
 					if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 						Thread t = new Thread() {
 							public void run() {							
@@ -329,7 +334,7 @@ public class Interface {
 		if (newBc) {
 			Thread newBcThread = new Thread() {
 				public void run() {
-					blockchain = new Blockchain(difficulty, nbrBlocks);
+					blockchain = new Blockchain(difficulty, nbrBlocks, nbr_transactions_max);
 					textArea.setText(blockchain.toString());
 					backBtn.setEnabled(true);
 					checkBcBtn.setEnabled(true);
@@ -350,7 +355,8 @@ public class Interface {
 		old.setVisible(false);
 		JFrame frame = new JFrame();
 		frame.setTitle("DuckCoinCoin");
-		frame.setSize(470, 220);
+		frame.setSize(460, 390);
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Interface.class.getResource("/dcc/duck_icon.png")));
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
@@ -359,6 +365,7 @@ public class Interface {
 		JPanel panel = new JPanel();
 		frame.getContentPane().add(panel);
 		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panel.setPreferredSize(new Dimension(450, 200));
 
 		JPanel blocksAmountPanel = new JPanel();
 		blocksAmountPanel.setLayout(new GridLayout(0, 1, 0, 0));
@@ -370,22 +377,47 @@ public class Interface {
 		JSlider blocksAmount = new JSlider();
 		blocksAmountPanel.add(blocksAmount);
 		blocksAmount.setValue(10);
-		blocksAmount.setMinorTickSpacing(5);
+		blocksAmount.setPaintLabels(true);
+		blocksAmount.setPaintTicks(true);
+		blocksAmount.setMajorTickSpacing(99);
+		blocksAmount.setMinorTickSpacing(10);
 		blocksAmount.setMinimum(1);
+		blocksAmount.setMaximum(100);
 
 		JPanel difficultyPanel = new JPanel();
 		difficultyPanel.setLayout(new GridLayout(0, 1, 0, 0));
 
 		JLabel difficultyLabel = new JLabel("Difficulté");
+		difficultyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		difficultyPanel.add(difficultyLabel);
+		
 		JSlider difficulty = new JSlider();
-		difficulty.setPaintTicks(true);
 		difficultyPanel.add(difficulty);
-		difficulty.setValue(4);
 		difficulty.setMaximum(10);
-		difficulty.setSnapToTicks(true);
-		difficulty.setMinorTickSpacing(1);
 		difficulty.setMinimum(1);
+		difficulty.setValue(4);
+		difficulty.setPaintTicks(true);
+		difficulty.setPaintLabels(true);
+		difficulty.setMajorTickSpacing(1);
+		difficulty.setSnapToTicks(true);
+		
+		// Nbr transactions max
+		JPanel nbr_transactions_max_panel = new JPanel();
+		nbr_transactions_max_panel.setLayout(new GridLayout(0, 1, 0, 0));
+
+		JLabel nbr_transactions_max_label = new JLabel("Nombre maximum de transactions par block");
+		nbr_transactions_max_label.setAlignmentX(Component.CENTER_ALIGNMENT);
+		nbr_transactions_max_panel.add(nbr_transactions_max_label);
+		
+		JSlider nbr_transactions_max_slider = new JSlider();
+		nbr_transactions_max_panel.add(nbr_transactions_max_slider);
+		nbr_transactions_max_slider.setMaximum(100);
+		nbr_transactions_max_slider.setMinimum(1);
+		nbr_transactions_max_slider.setValue(10);
+		nbr_transactions_max_slider.setPaintTicks(true);
+		nbr_transactions_max_slider.setPaintLabels(true);
+		nbr_transactions_max_slider.setMajorTickSpacing(99);
+		nbr_transactions_max_slider.setMinorTickSpacing(10);
 
 		JButton okBtn = new JButton("Valider");
 
@@ -396,7 +428,12 @@ public class Interface {
 		okBtn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (okBtn.isEnabled()) displayBlockchain(frame, true, blocksAmount.getValue(), difficulty.getValue());
+				if (okBtn.isEnabled()) displayBlockchain(
+						frame,
+						true,
+						blocksAmount.getValue(),
+						difficulty.getValue(),
+						nbr_transactions_max_slider.getValue());
 			}
 		});
 
@@ -418,6 +455,7 @@ public class Interface {
 		// Add panels to frame
 		panel.add(blocksAmountPanel);
 		panel.add(difficultyPanel);
+		panel.add(nbr_transactions_max_panel);
 		panel.add(okBtnPanel);
 
 		frame.setVisible(true);

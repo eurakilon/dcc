@@ -18,19 +18,11 @@ public class Block implements Comparable<Block>{
 	/**
 	 * Constructor
 	 */
-	public Block (int i, String hash_prev, int difficulty){
+	public Block (int i, String hash_prev, int difficulty, String [] ts){
 		index = i;
 		previousHash = hash_prev;
 		timestamp = new Timestamp(new Date().getTime()).toString();
-		if (hash_prev.equals("0")) {
-			transactions = new String [] {"Genesis"};
-			difficulty = 0;
-		} else {
-			int tmp = Utility.rdm(MAX_TRANSACTIONS_AMOUNT - 1) + 1;
-			transactions = new String [tmp];
-			for (i = 0; i < tmp; i++)
-				transactions[i] = "Source-Destination:" + Integer.toString(Utility.rdm(MAX_TRANSACTIONS_VALUE - 1) + 1);
-		}
+		transactions = ts;
 		nbTransactions = transactions.length;
 		merkleRoot = generateMerkleRoot(transactions);
 		generateNonce(difficulty);

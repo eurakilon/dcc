@@ -14,22 +14,31 @@ public class Blockchain {
 	public static final int HASH_CORROMPU = 4;
 
 	public static void main(String[] args) {
-		Blockchain t = new Blockchain(4, 10);
+		Blockchain t = new Blockchain(4, 10, 10);
 		System.out.println(t);
 		System.out.println(t.checkBlockchain()[0]);
 	}
 
-	public Blockchain (int bc_difficulty, int nbr_blocks) {
+	public Blockchain (int bc_difficulty, int nbr_blocks, int nbr_transactions_max) {
+		int tmp, i;
+		String [] transactions;
 		BC = new Block [nbr_blocks];
 		difficulty = bc_difficulty;
-		BC[0] = new Block(0, "0", difficulty);
+		BC[0] = new Block(0, "0", difficulty, new String [] {"Genesis"});
 		nbBlocks = 1;
-		for (int i = 1; i < nbr_blocks; i++)
-			addBlock();
+		for (int j = 1; j < nbr_blocks; j++) {
+			// Créer les transactions
+			tmp = Utility.rdm(nbr_transactions_max - 1) + 1;
+			transactions = new String [tmp];
+			for (i = 0; i < tmp; i++)
+				transactions[i] = "Source-Destination:" + Integer.toString(Utility.rdm(nbr_transactions_max - 1) + 1);
+			// Ajouter un block
+			addBlock(transactions);
+		}
 	}
 
-	public void addBlock(){
-		BC[nbBlocks] = new Block(nbBlocks, BC[nbBlocks - 1].getHash(), difficulty);
+	public void addBlock(String [] transactions){
+		BC[nbBlocks] = new Block(nbBlocks, BC[nbBlocks - 1].getHash(), difficulty, transactions);
 		nbBlocks++;
 	}
 
