@@ -1,82 +1,118 @@
 package dcc;
 
 import java.util.Date;
+import java.sql.Timestamp;
 
-public class Block {
-	private String hash_prev;
-	private Date timestamp;
-	private String hash_merkle; 
-	private int nonce;
-	private Transaction transactions[];
-	private String hash_block;
+public class Block implements Comparable<Block>{
+	private int index;
+	private String previousHash;
+	private String timestamp;
+	private int nbTransactions;
+	private String transactions[];
+	private String merkleRoot;
+	private String blockHash;
+	private int nonce = 0;
+	public static final int MAX_TRANSACTIONS_VALUE = 100;
+	public static final int MAX_TRANSACTIONS_AMOUNT = 10;
 
 	/**
 	 * Constructor
 	 */
-	public Block (String hash_prev, Transaction transactions[], int difficulty){
-		this.hash_prev = hash_prev;
-		this.timestamp = new Date ();
-		this.transactions = transactions;
-		this.hash_merkle = this.generate_merkle(this.transactions);
-		this.nonce = generateNonce(difficulty);
-		this.hash_block = Utility.sha256(this.hash_prev + this.timestamp.toString() + this.hash_merkle + this.nonce);
-
-	}
-
-	private String generate_merkle(Transaction ts []) {
-		String t [] = new String [ts.length];
-		for (int i = 0; i < ts.length; i++) t[i] = ts[i].getHash();
-		return merkle_aux(t);
-	}
-
-	private String merkle_aux (String tab []){
-		if (tab.length == 0) {
-			return null;
-		} else if (tab.length == 1) {
-			return Utility.sha256(tab[0] + tab[0]);
-		} else if (tab.length == 2) {
-			return Utility.sha256(tab[0] + tab[1]);
+	public Block (int i, String hash_prev, int difficulty){
+		index = i;
+		previousHash = hash_prev;
+		timestamp = new Timestamp(new Date().getTime()).toString();
+		if (hash_prev.equals("0")) {
+			transactions = new String [] {"Genesis"};
+			difficulty = 0;
+		} else {
+			int tmp = Utility.rdm(MAX_TRANSACTIONS_AMOUNT - 1) + 1;
+			transactions = new String [tmp];
+			for (i = 0; i < tmp; i++)
+				transactions[i] = "Source-Destination:" + Integer.toString(Utility.rdm(MAX_TRANSACTIONS_VALUE - 1) + 1);
 		}
-		String tab_aux [] = new String [0];
-		int pos = 0;
-		for (int i = 0; i < tab.length; i+=2) {
-			if (i + 1 > tab.length){
-				// cas impair duplication
-				tab_aux [pos] = Utility.sha256(tab[i] + tab[i]);
-				pos++;
-			} else {
-				// cas normal
-				tab_aux [pos] = Utility.sha256(tab[i] + tab[i + 1]);
-				pos++;
+		nbTransactions = transactions.length;
+		merkleRoot = generateMerkleRoot(transactions);
+		generateNonce(difficulty);
+		blockHash = getHash();
+	}
+
+	public static String generateMerkleRoot(String ts []) {
+		if(ts.length == 1) return Utility.sha256(ts[0]);
+		if (ts.length == 2) return Utility.sha256(Utility.sha256(ts[0]) + Utility.sha256(ts[1]));
+			String t1 [] = new String [ts.length];
+		int i = 0;
+		for (; i < ts.length; i++)
+			t1[i] = Utility.sha256(ts[i]);
+		String t2 [] = new String [(ts.length + 1)/2];
+		while (t2.length > 1) {
+			t2 = new String [(t1.length + 1)/2];
+			for (i = 0; i < t1.length; i += 2) {
+				t2[i/2] = ((i + 1) == t1.length) ? Utility.sha256(t1[i] + t1[i]) : Utility.sha256(t1[i] + t1[i + 1]);
 			}
+			t1 = t2;
 		}
-		return this.merkle_aux(tab);
+		return t2[0];
 	}
 
 	public String getHash () {
-		return this.hash_block;
+		return Utility.sha256(previousHash + timestamp + merkleRoot + nonce);
 	}
-	
 
-	private int generateNonce(int difficulty) {
-		int nonce = 0;
-		String t = Utility.sha256(this.hash_prev + this.timestamp.toString() + this.hash_merkle + nonce);
+	public int getIndex() {
+		return index;
+	}
+
+	public String getPreviousHash() {
+		return previousHash;
+	}
+
+	public String getTimestamp() {
+		return timestamp;
+	}
+
+	public int getNbTransactions() {
+		return nbTransactions;
+	}
+
+	public String[] getTransactions() {
+		return transactions;
+	}
+
+	public String getMerkleRoot() {
+		return merkleRoot;
+	}
+
+	public String getBlockHash() {
+		return blockHash;
+	}
+
+	public int getNonce() {
+		return nonce;
+	}
+
+	private void generateNonce(int difficulty) {
+		String t = this.getHash();
 		String str_difficulty = "";
 		for (int i = 0; i < difficulty; i++) str_difficulty += "0";
 		while (!t.substring(0, difficulty).equals(str_difficulty)){
-			nonce++;
-			t = Utility.sha256(this.hash_prev + this.timestamp.toString() + this.hash_merkle + nonce);
+			this.nonce++;
+			t = this.getHash();
 		}
-		return nonce;
 	}
-	
+
 	public String toString (){
-		return "------------------\n"
-				+ "Hash du block : " + this.getHash() + "\n"
-				+ "Hash du block precedent : " + this.hash_prev + "\n"
-				+ "Timestamp : " + this.timestamp + "\n"
-				+ "Nonce : " + this.nonce + "\n"
-				+ "Nbr de transactions : " + this.transactions.length;
+		return "Hash du block precedent : " + previousHash + "\n"
+				+ "Timestamp : " + timestamp + "\n"
+				+ "Nbr de transactions : " + nbTransactions + "\n"
+				+ "Hash de l'arbre de merkle : " + merkleRoot + "\n"
+				+ "Hash du block : " + blockHash + "\n"
+				+ "Nonce : " + nonce + "\n";
+	}
+
+	@Override
+	public int compareTo(Block o) {
+		return index - o.getIndex();
 	}
 
 }
